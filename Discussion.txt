@@ -1,0 +1,19 @@
+ASCII_Chess
+===========
+
+Problems to overcome:
+1.	How are we going to create the pieces?
+  a.	Define class Piece, then derive different pieces from it?
+  b.	Define classes King, Queen…, Pawn individually?
+2.	Move validation?
+  a.	Part of piece class?
+  b.	Separate method just for this?
+3.	AI?
+  a.	Use the tried-and-true method from our checkers game?
+    i.	Slow, we would need to optimize it much more
+    ii.	No need to implement another
+    iii.	Only need to rewrite the move-related methods
+  b.	We could write another
+    i.	Could we speed it up at all?
+
+Problems already solved (above questions will be moved down here after they are solved):
