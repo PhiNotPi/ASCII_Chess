@@ -5,15 +5,26 @@ Problems to overcome:
 1.	How are we going to create the pieces?
   a.	Define class Piece, then derive different pieces from it?
   b.	Define classes King, Queen…, Pawn individually?
+  c.  Each piece is defined by its type (king, knight, etc.), color (black or white), and location
+  d.  In addition to the pieces, the game state also includes whose turn it is and where castling/en passant is alowed
 2.	Move validation?
   a.	Part of piece class?
   b.	Separate method just for this?
+  c.  Move validation requires looking at the whole board, not just the piece's neighborhood
+  d.  Win validation must be able to handle draws by stalemate (which might break the AI)
 3.	AI?
   a.	Use the tried-and-true method from our checkers game?
     i.	Slow, we would need to optimize it much more
+      1. The checkers AI was basic alpha-beta pruning. The more pruning we do, the faster it will be
+      2. Sort moves by type (checkmate, check, capture, etc., pawn move) and investigate in that order
+      3. Create (or find) an "opening book" of the best first moves
     ii.	No need to implement another
-    iii.	Only need to rewrite the move-related methods
+    iii.  Only need to rewrite the move-related methods
+      1.  The more efficiently we can generate valid moves, the faster the AI will be
+    iv. We need to prevent the "DeepCopy" bugs that caused the lookahead to affect the current board in Checkers
+    v.  Board evaluation can be mostly piece-based: http://home.comcast.net/~danheisman/Articles/evaluation_of_material_imbalance.htm
   b.	We could write another
     i.	Could we speed it up at all?
+    ii. Write a few AIs and see which one is best
 
 Problems already solved (above questions will be moved down here after they are solved):
