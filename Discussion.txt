@@ -31,3 +31,7 @@ Problems already solved (above questions will be moved down here after they are 
 1.  Copy reference bugs
   a.  Implement efficient version of "deepcopy"
   b.  Need it for board and possibly pieces
+
+Interesting files/webpages:
+http://archive.computerhistory.org/projects/chess/related_materials/text/2-0%20and%202-1.Programming_a_computer_for_playing_chess.shannon/2-0%20and%202-1.Programming_a_computer_for_playing_chess.shannon.062303002.pdf
+http://home.comcast.net/~danheisman/Articles/evaluation_of_material_imbalance.htm
