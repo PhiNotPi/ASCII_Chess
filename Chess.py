@@ -6,7 +6,7 @@ Pieces = ['King', 'Queen', 'Rook', 'Knight', 'Bishop', 'Pawn']
 class Board():
 
     # Constructor
-    def __init__(self, blank = ['', Player.Undefined]):
+    def __init__(self, blank = [' ', Player.Undefined]):
         self.data = [[]]
 
         for i in range(8):
@@ -26,7 +26,7 @@ class Board():
 
         for i in range(4):
             for j in range(8):
-                self.data[i+2].append(Piece([' ', Player.Undefined]))
+                self.data[i+2].append(Piece(blank))
 
         for i in range(8):
             self.data[6].append(Pawn(['P', Player.PlayerTwo]))
@@ -43,7 +43,7 @@ class Board():
     def Render(self, player):
         """Returns an ASCII representation of the board."""
 
-        if player is Player.PlayerTwo:
+        if player is Player.PlayerOne:
             s = '   A B C D E F G H \n'
             for n in range(8):
                 s += '  +-+-+-+-+-+-+-+-+\n'
@@ -56,13 +56,30 @@ class Board():
                 s += ('\n|%s| %i' % ('|'.join([self.data[n][p][0] for p in range(8)]), 8-n-1))[::-1]
         s += '  +-+-+-+-+-+-+-+-+'
         print(s)
-        
+
+    def Move(self, Viewer, FromCoord, ToCoord):
+        blank = [' ', Player.Undefined]
+
+        if self.data[int(ord(FromCoord[1]))-48][int(ord(FromCoord[0]))-65] == blank:
+            print("No piece there")
+            return False
+
+        if self.data[int(ord(FromCoord[1]))-48][int(ord(FromCoord[0]))-65].IsValidMove(FromCoord, ToCoord):
+            self.data[int(ord(ToCoord[1]))-48][int(ord(ToCoord[0]))-65] = board.data[int(ord(FromCoord[1]))-48][int(ord(FromCoord[0]))-65]
+            self.data[int(ord(FromCoord[1]))-48][int(ord(FromCoord[0]))-65] = blank
+            self.Render(Viewer)
+            return True
+            
+        else:
+            print("Invalid move")
+            return False
 
 class Piece(list):
 
     def IsValidMove(self, FromCoord, ToCoord):
         print(self)
         print("Validation not done")
+        return False
 
 class King(Piece):
 
@@ -151,9 +168,6 @@ class Pawn(Piece):
     
     def IsValidMove(self, FromCoord, ToCoord):
 
-        print("Piece is", self[0])
-        print("Player is", self[1])
-
         move = [ord(ToCoord[0]) - ord(FromCoord[0]), ord(ToCoord[1]) - ord(FromCoord[1])]
         
         # Player.PlayerOne pawn on back row
@@ -220,14 +234,17 @@ if __name__ == "__main__":
     # WORKS TO INPUT A PIECE AND MOVE
 
     board = Board()
-    board.Render(Player.PlayerOne)
-    print("^^^^^^^^^^^^^^^^^^^^^^^^")
-    board.Render(Player.PlayerTwo)
 
     while True:
         move = input("Enter your piece, the starting square, and the ending square (i.e. King E0 F1) ").split(" ")
         if len(move) == 3 and IsValidInput(move[0], move[1], move[2]):
-            exec(pieces[Pieces.index(move[0])]+".IsValidMove('"+move[1]+"','"+move[2]+"')")
+            board.Move(Player.PlayerOne, move[1], move[2])
+        else:
+            print("Invalid input")
+            move = input("Enter your piece, the starting square, and the ending square (i.e. King E0 F1) ").split(" ")
+        move = input("Enter your piece, the starting square, and the ending square (i.e. King E0 F1) ").split(" ")
+        if len(move) == 3 and IsValidInput(move[0], move[1], move[2]):
+            board.Move(Player.PlayerTwo, move[1], move[2])
         else:
             print("Invalid input")
 
