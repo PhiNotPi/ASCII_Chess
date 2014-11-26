@@ -3,7 +3,66 @@ from enum import Enum
 Player = Enum('Player', 'PlayerOne PlayerTwo Undefined')
 Pieces = ['King', 'Queen', 'Rook', 'Knight', 'Bishop', 'Pawn']
 
-class Piece(str):
+class Board():
+
+    # Constructor
+    def __init__(self, blank = ['', Player.Undefined]):
+        self.data = [[]]
+
+        for i in range(8):
+            self.data.append([])
+        
+        self.data[0].append(Rook(['R', Player.PlayerOne]))
+        self.data[0].append(Knight(['N', Player.PlayerOne]))
+        self.data[0].append(Bishop(['B', Player.PlayerOne]))
+        self.data[0].append(Queen(['Q', Player.PlayerOne]))
+        self.data[0].append(King(['K', Player.PlayerOne]))
+        self.data[0].append(Bishop(['B', Player.PlayerOne]))
+        self.data[0].append(Knight(['N', Player.PlayerOne]))
+        self.data[0].append(Rook(['R', Player.PlayerOne]))
+
+        for i in range(8):
+            self.data[1].append(Pawn(['P', Player.PlayerOne]))
+
+        for i in range(4):
+            for j in range(8):
+                self.data[i+2].append(Piece([' ', Player.Undefined]))
+
+        for i in range(8):
+            self.data[6].append(Pawn(['P', Player.PlayerTwo]))
+
+        self.data[7].append(Rook(['R', Player.PlayerTwo]))
+        self.data[7].append(Knight(['N', Player.PlayerTwo]))
+        self.data[7].append(Bishop(['B', Player.PlayerTwo]))
+        self.data[7].append(Queen(['Q', Player.PlayerTwo]))
+        self.data[7].append(King(['K', Player.PlayerTwo]))
+        self.data[7].append(Bishop(['B', Player.PlayerTwo]))
+        self.data[7].append(Knight(['N', Player.PlayerTwo]))
+        self.data[7].append(Rook(['R', Player.PlayerTwo]))
+
+        Board.render(self, Player.PlayerTwo)
+        print("***************************************")
+        Board.render(self, Player.PlayerOne)
+
+    def render(self, player):
+        """Returns an ASCII representation of the board."""
+
+        if player is Player.PlayerTwo:
+            s = '   A B C D E F G H \n'
+            for n in range(8):
+                s += '  +-+-+-+-+-+-+-+-+\n'
+                s += '%i |%s|\n' % (n, '|'.join([self.data[n][p][0] for p in range(8)]))
+        else:
+            s = '   H G F E D C B A \n'
+            for n in range(8):
+                row = self.data[8-n-1]
+                s += '  +-+-+-+-+-+-+-+-+\n'
+                s += ('\n|%s| %i' % ('|'.join([self.data[n][p][0] for p in range(8)]), 8-n-1))[::-1]
+        s += '  +-+-+-+-+-+-+-+-+'
+        print(s)
+        
+
+class Piece(list):
 
     def IsValidMove(self, FromCoord, ToCoord):
         print(self)
@@ -25,7 +84,7 @@ class King(Piece):
 
         # Castling - AND has higher priority than OR
         if King.CanCastle and move[1] == 0 and (move[0] == 2 or move[0] == 3):
-            if self == "Player.PlayerOne" and FromCoord == "E0" or self == "Player.PlayerTwo" and FromCoord == "D7":
+            if self[1] == Player.PlayerOne and FromCoord == "E0" or self[1] == Player.PlayerTwo and FromCoord == "E7":
                 print("Valid move")
                 return True
         
@@ -96,40 +155,43 @@ class Pawn(Piece):
     
     def IsValidMove(self, FromCoord, ToCoord):
 
-        move = [ord(ToCoord[0]) - ord(FromCoord[0]), ord(ToCoord[1]) - ord(FromCoord[1])]
+        print("Piece is", self[0])
+        print("Player is", self[1])
 
-        # Pawn on back row
+        move = [ord(ToCoord[0]) - ord(FromCoord[0]), ord(ToCoord[1]) - ord(FromCoord[1])]
+        
+        # Player.PlayerOne pawn on back row
         if FromCoord[1] == "0" or FromCoord[1] == "7":
             print("Pawn cannot start on back row")
             return False
 
         # Player.PlayerOne capture
-        if self == "Player.PlayerOne" and abs(move[0]) == move[1] == 1:
+        if self[1] == Player.PlayerOne and abs(move[0]) == move[1] == 1:
             print("Valid Move")
             return True
 
         # Player.PlayerTwo capture
-        if self == "Player.PlayerTwo" and abs(move[0]) == 1 and move[1] == -1:
+        if self[1] == Player.PlayerTwo and abs(move[0]) == 1 and move[1] == -1:
             print("Valid Move")
             return True
 
         # Player.PlayerOne first move
-        if self == "Player.PlayerOne" and FromCoord[1] == "1" and move[0] == 0 and move[1] == 2:
+        if self[1] == Player.PlayerOne and FromCoord[1] == "1" and move[0] == 0 and move[1] == 2:
             print("Valid Move")
             return True
 
         # Player.PlayerTwo first move
-        if self == "Player.PlayerTwo" and FromCoord[1] == "6" and move[0] == 0 and move[1] == -2:
+        if self[1] == Player.PlayerTwo and FromCoord[1] == "6" and move[0] == 0 and move[1] == -2:
             print("Valid Move")
             return True
 
         # Player.PlayerOne move
-        if self == "Player.PlayerOne" and move[0] == 0 and move[1] == 1:
+        if self[1] == Player.PlayerOne and move[0] == 0 and move[1] == 1:
             print("Valid Move")
             return True
 
         # Player.PlayerTwo move
-        if self == "Player.PlayerTwo" and move[0] == 0 and move[1] == -1:
+        if self[1] == Player.PlayerTwo and move[0] == 0 and move[1] == -1:
             print("Valid Move")
             return True
 
@@ -160,14 +222,14 @@ if __name__ == "__main__":
 
     # FOR TESTING PURPOSES ONLY
     # WORKS TO INPUT A PIECE AND MOVE
-    
-    pieces = ["King(Player.PlayerOne)", "Queen(Player.PlayerOne)", "Rook(Player.PlayerOne)",
-              "Knight(Player.PlayerOne)", "Bishop(Player.PlayerOne)", "Pawn(Player.PlayerOne)"]
 
-    move = input("Enter your piece, the starting square, and the ending square (i.e. King E0 F1) ").split(" ")
-    if len(move) == 3 and IsValidInput(move[0], move[1], move[2]):
-        exec(pieces[Pieces.index(move[0])]+".IsValidMove('"+move[1]+"','"+move[2]+"')")
-    else:
-        print("Invalid input")
+    board = Board()
+
+    while True:
+        move = input("Enter your piece, the starting square, and the ending square (i.e. King E0 F1) ").split(" ")
+        if len(move) == 3 and IsValidInput(move[0], move[1], move[2]):
+            exec(pieces[Pieces.index(move[0])]+".IsValidMove('"+move[1]+"','"+move[2]+"')")
+        else:
+            print("Invalid input")
 
     print("GAME_END")
