@@ -40,11 +40,7 @@ class Board():
         self.data[7].append(Knight(['N', Player.PlayerTwo]))
         self.data[7].append(Rook(['R', Player.PlayerTwo]))
 
-        Board.render(self, Player.PlayerTwo)
-        print("***************************************")
-        Board.render(self, Player.PlayerOne)
-
-    def render(self, player):
+    def Render(self, player):
         """Returns an ASCII representation of the board."""
 
         if player is Player.PlayerTwo:
@@ -224,6 +220,9 @@ if __name__ == "__main__":
     # WORKS TO INPUT A PIECE AND MOVE
 
     board = Board()
+    board.Render(Player.PlayerOne)
+    print("^^^^^^^^^^^^^^^^^^^^^^^^")
+    board.Render(Player.PlayerTwo)
 
     while True:
         move = input("Enter your piece, the starting square, and the ending square (i.e. King E0 F1) ").split(" ")
