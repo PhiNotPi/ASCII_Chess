@@ -41,7 +41,8 @@ class Board():
         self.data[7].append(Rook(['R', Player.PlayerTwo]))
 
     def Render(self, player):
-        """Returns an ASCII representation of the board."""
+        # Returns an ASCII representation of the board.
+        # Prints board as other player views it (current player, not current viewer)
 
         if player is Player.PlayerOne:
             s = '   A B C D E F G H \n'
@@ -51,25 +52,42 @@ class Board():
         else:
             s = '   H G F E D C B A \n'
             for n in range(8):
-                row = self.data[8-n-1]
                 s += '  +-+-+-+-+-+-+-+-+\n'
-                s += ('\n|%s| %i' % ('|'.join([self.data[n][p][0] for p in range(8)]), 8-n-1))[::-1]
+                s += '%i |%s|\n' % (7-n, '|'.join([self.data[7-n][7-p][0] for p in range(8)]))
         s += '  +-+-+-+-+-+-+-+-+'
         print(s)
 
-    def Move(self, Viewer, FromCoord, ToCoord):
+    def Move(self, Mover, PieceName, FromCoord, ToCoord):
         blank = [' ', Player.Undefined]
 
+        # Ensure player is moving a piece
         if self.data[int(ord(FromCoord[1]))-48][int(ord(FromCoord[0]))-65] == blank:
             print("No piece there")
             return False
 
+        # Ensure player moves their own piece
+        print(Mover)
+        if self.data[int(ord(FromCoord[1]))-48][int(ord(FromCoord[0]))-65][1] != Mover:
+            print("Please do not cheat - you are not allowed to move your opponent's piece")
+            return False
+
+        # Ensure player is moving specified piece
+        if PieceName == 'K': PieceName == 'N'
+        if self.data[int(ord(FromCoord[1]))-48][int(ord(FromCoord[0]))-65][0] != PieceName:
+            print("Attempt to move wrong piece")
+            return False
+
+        # Ensure player is not capturing their own piece
+        if self.data[int(ord(FromCoord[1]))-48][int(ord(FromCoord[0]))-65][1] == self.data[int(ord(ToCoord[1]))-48][int(ord(ToCoord[0]))-65][1]:
+            print("Cannot capture your own piece")
+            return False
+
+        # Move piece is move is valid
         if self.data[int(ord(FromCoord[1]))-48][int(ord(FromCoord[0]))-65].IsValidMove(FromCoord, ToCoord):
             self.data[int(ord(ToCoord[1]))-48][int(ord(ToCoord[0]))-65] = board.data[int(ord(FromCoord[1]))-48][int(ord(FromCoord[0]))-65]
             self.data[int(ord(FromCoord[1]))-48][int(ord(FromCoord[0]))-65] = blank
-            self.Render(Viewer)
+            self.Render(Player.PlayerOne if Mover == Player.PlayerTwo else Player.PlayerOne)
             return True
-            
         else:
             print("Invalid move")
             return False
@@ -228,24 +246,26 @@ def IsValidInput(PieceName, FromCoord, ToCoord):
     return False
 
 if __name__ == "__main__":
-    print("GAME START")
-
-    # FOR TESTING PURPOSES ONLY
-    # WORKS TO INPUT A PIECE AND MOVE
 
     board = Board()
-
+    
     while True:
-        move = input("Enter your piece, the starting square, and the ending square (i.e. King E0 F1) ").split(" ")
-        if len(move) == 3 and IsValidInput(move[0], move[1], move[2]):
-            board.Move(Player.PlayerOne, move[1], move[2])
-        else:
-            print("Invalid input")
+        
+        turn = Player.PlayerOne
+        board.Render(Player.PlayerTwo)
+        
+        while turn is Player.PlayerOne:
             move = input("Enter your piece, the starting square, and the ending square (i.e. King E0 F1) ").split(" ")
-        move = input("Enter your piece, the starting square, and the ending square (i.e. King E0 F1) ").split(" ")
-        if len(move) == 3 and IsValidInput(move[0], move[1], move[2]):
-            board.Move(Player.PlayerTwo, move[1], move[2])
-        else:
-            print("Invalid input")
+            if len(move) == 3 and IsValidInput(move[0], move[1], move[2]):
+                if board.Move(Player.PlayerOne, move[0][0], move[1], move[2]):
+                    turn = Player.PlayerTwo
+            else:
+                print("Invalid input")
 
-    print("GAME_END")
+        while turn is Player.PlayerTwo:
+            move = input("Enter your piece, the starting square, and the ending square (i.e. King E0 F1) ").split(" ")
+            if len(move) == 3 and IsValidInput(move[0], move[1], move[2]):
+                if board.Move(Player.PlayerTwo, move[0][0], move[1], move[2]):
+                    turn = Player.PlayerOne
+            else:
+                print("Invalid input")
