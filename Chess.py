@@ -79,23 +79,24 @@ class Board():
         # Prints board as other player views it (current player, not current viewer)
 
         if player is Player.PlayerOne:
-            s = '   A B C D E F G H \n'
+            s = '  +-+-+-+-+-+-+-+-+\n'
             for n in range(8):
+                s += '%i |%s|\n' % (8-n, '|'.join([self.data[7-n][p][0] for p in range(8)]))
                 s += '  +-+-+-+-+-+-+-+-+\n'
-                s += '%i |%s|\n' % (n, '|'.join([self.data[n][p][0] for p in range(8)]))
+            s += '   A B C D E F G H \n'
         else:
-            s = '   H G F E D C B A \n'
+            s = '  +-+-+-+-+-+-+-+-+\n'
             for n in range(8):
+                s += '%i |%s|\n' % (n+1, '|'.join([self.data[n][7-p][0] for p in range(8)]))
                 s += '  +-+-+-+-+-+-+-+-+\n'
-                s += '%i |%s|\n' % (7-n, '|'.join([self.data[7-n][7-p][0] for p in range(8)]))
-        s += '  +-+-+-+-+-+-+-+-+'
+            s += '   H G F E D C B A \n'
         print(s)
 
     def Move(self, Mover, PieceName, FromCoord, ToCoord):
         blank = [' ', Player.Undefined]
 
-        FromCoord = [int(ord(FromCoord[0])) - 65, int(ord(FromCoord[1])) - 48]
-        ToCoord = [int(ord(ToCoord[0])) - 65, int(ord(ToCoord[1])) - 48]
+        FromCoord = [int(ord(FromCoord[0])) - 65, int(ord(FromCoord[1])) - 49]
+        ToCoord = [int(ord(ToCoord[0])) - 65, int(ord(ToCoord[1])) - 49]
         MoveCoords = [abs(ToCoord[0] - FromCoord[0]), abs(ToCoord[1] - FromCoord[1])]
         
         # Ensure player is moving a piece
@@ -265,7 +266,6 @@ class Board():
     
         self.data[ToCoord[1]][ToCoord[0]] = board.data[FromCoord[1]][FromCoord[0]]
         self.data[FromCoord[1]][FromCoord[0]] = blank
-        self.Render(Mover)
         return True
 
 class Piece(list):
@@ -403,7 +403,7 @@ def IsValidInput(PieceName, FromCoord, ToCoord):
         return False
 
     if FromCoord[0] in 'ABCDEFGH' and ToCoord[0] in 'ABCDEFGH':
-        if FromCoord[1] in '01234567' and ToCoord[1] in '01234567':
+        if FromCoord[1] in '12345678' and ToCoord[1] in '12345678':
             return True
 
     print("Invalid input")
@@ -412,7 +412,7 @@ def IsValidInput(PieceName, FromCoord, ToCoord):
 if __name__ == "__main__":
 
     board = Board()
-    board.Render(Player.PlayerTwo)
+    board.Render(Player.PlayerOne)
     turn = Player.PlayerOne
     
     while True:
@@ -422,6 +422,7 @@ if __name__ == "__main__":
             if len(move) == 3 and IsValidInput(move[0], move[1], move[2]):
                 if board.Move(Player.PlayerOne, move[0][0:2], move[1], move[2]):
                     turn = Player.PlayerTwo
+                    board.Render(Player.PlayerTwo)
             else:
                 print("Invalid input")
 
@@ -431,5 +432,6 @@ if __name__ == "__main__":
             if len(move) == 3 and IsValidInput(move[0], move[1], move[2]):
                 if board.Move(Player.PlayerTwo, move[0][0:2], move[1], move[2]):
                     turn = Player.PlayerOne
+                    board.Render(Player.PlayerOne)
             else:
                 print("Invalid input")
