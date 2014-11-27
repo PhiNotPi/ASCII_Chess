@@ -5,6 +5,8 @@ Pieces = ['King', 'Queen', 'Rook', 'Knight', 'Bishop', 'Pawn']
 
 class Board():
 
+    CanCastle = [[False, False, False], [False, False, False]]
+
     def deepcopy(self):
         
         b = Board()
@@ -52,15 +54,19 @@ class Board():
         self.data[0].append(Knight(['N', Player.PlayerOne]))
         self.data[0].append(Rook(['R', Player.PlayerOne]))
 
-        for i in range(8):
-            self.data[1].append(Pawn(['P', Player.PlayerOne]))
+##        for i in range(8):
+##            self.data[1].append(Pawn(['P', Player.PlayerOne]))
+##
+##        for i in range(4):
+##            for j in range(8):
+##                self.data[i+2].append(Piece(blank))
+##
+##        for i in range(8):
+##            self.data[6].append(Pawn(['p', Player.PlayerTwo]))
 
-        for i in range(4):
+        for i in range(6):
             for j in range(8):
-                self.data[i+2].append(Piece(blank))
-
-        for i in range(8):
-            self.data[6].append(Pawn(['p', Player.PlayerTwo]))
+                self.data[i+1].append(Piece(blank))
 
         self.data[7].append(Rook(['r', Player.PlayerTwo]))
         self.data[7].append(Knight(['n', Player.PlayerTwo]))
@@ -107,8 +113,8 @@ class Board():
             return False
 
         # Ensure player is moving specified piece
-        if PieceName == 'K': PieceName = 'N'
-        if self.data[FromCoord[1]][FromCoord[0]][0].upper() != PieceName:
+        PieceName = 'N' if PieceName == 'Kn' else PieceName[0]
+        if self.data[FromCoord[1]][FromCoord[0]][0].upper() != PieceName[0]:
             print("Attempt to move wrong piece")
             return False
 
@@ -117,6 +123,7 @@ class Board():
             print("Cannot capture your own piece")
             return False
 
+        # Make sure move follows correct moving pattern
         if not self.data[FromCoord[1]][FromCoord[0]].IsValidMovePattern(FromCoord, ToCoord):
             print("Invalid move")
             return False
@@ -141,6 +148,22 @@ class Board():
                     if self.data[FromCoord[1]][FromCoord[0] + j][0] is not ' ':
                         print("Your rook cannot run over pieces")
                         return False
+
+            # At this point, the move is valid
+            # Check if this rook has moved before
+            if not self.data[FromCoord[1]][FromCoord[0]].HasMoved:
+                self.data[FromCoord[1]][FromCoord[0]].HasMoved = True
+                if Mover == Player.PlayerOne:
+                    if FromCoord == [0,0]:
+                        self.CanCastle[0][0] = True
+                    if FromCoord == [7,0]:
+                        self.CanCastle[0][1] = True
+                else:
+                    print(FromCoord)
+                    if FromCoord == [0,7]:
+                        self.CanCastle[1][0] = True
+                    if FromCoord == [7,7]:
+                        self.CanCastle[1][1] = True
 
         if PieceName is 'B':
 
@@ -192,6 +215,7 @@ class Board():
 
                 # First move
                 if MoveCoords[1] == 2:
+                    
                     if self.data[ToCoord[1]][ToCoord[0]][0] != ' ' or self.data[ToCoord[1]-i][ToCoord[0]][0] != ' ':
                         print("Your pawn cannot run into pieces")
                         return False
@@ -203,15 +227,49 @@ class Board():
                         return False
 
             #Capture
-
             else:
                 if self.data[ToCoord[1]][ToCoord[0]][0] == ' ':
                     print("Your pawn cannot move diagonally")
-                    return False 
+                    return False
+
+        if PieceName is 'K':
+
+            if MoveCoords[0] > 1:
+
+                if self.CanCastle[0 if Mover is Player.PlayerOne else 1][2]:
+                    print("You cannot castle after you have moved your king")
+                    return False
+                
+                if MoveCoords[0] == 2:
+                    if self.CanCastle[0 if Mover is Player.PlayerOne else 1][1]:
+                        print("This rook has been moved already")
+                        return False
+                    
+                    if self.data[ToCoord[1]][ToCoord[0]][0] != ' ' or self.data[ToCoord[1]][ToCoord[0]-1][0] != ' ':
+                        print("Cannot castle through pieces")
+                        return False
+
+                    self.data[ToCoord[1]][ToCoord[0]-1] = board.data[ToCoord[1]][ToCoord[0]+1]
+                    board.data[ToCoord[1]][ToCoord[0]+1] = blank
+
+                if MoveCoords[0] == 3:
+                    if self.CanCastle[0 if Mover is Player.PlayerOne else 1][0]:
+                        print("This rook has been moved already")
+                        return False
+                    
+                    if self.data[ToCoord[1]][ToCoord[0]][0] != ' ' or self.data[ToCoord[1]][ToCoord[0]+1][0] != ' ' or self.data[ToCoord[1]][ToCoord[0]+2][0] != ' ':
+                        print("Cannot castle through pieces")
+                        return False
+
+                    self.data[ToCoord[1]][ToCoord[0]+1] = board.data[ToCoord[1]][ToCoord[0]-1]
+                    board.data[ToCoord[1]][ToCoord[0]-1] = blank
+                    
+            # No more castling allowed if king is moved
+            self.CanCastle[0 if Mover is Player.PlayerOne else 1] = [True, True, True]
     
         self.data[ToCoord[1]][ToCoord[0]] = board.data[FromCoord[1]][FromCoord[0]]
         self.data[FromCoord[1]][FromCoord[0]] = blank
-        #self.Render(Mover)
+        self.Render(Mover)
         return True
 
 class Piece(list):
@@ -223,9 +281,6 @@ class Piece(list):
 
 class King(Piece):
 
-    CastleLegal = True  # Set to False when king or both rooks move
-    CanCastle = False   # Set to True if CastleLegal and no pieces between king and rook
-    
     def IsValidMovePattern(self, FromCoord, ToCoord):
 
         move = [abs(ToCoord[0] - FromCoord[0]), abs(ToCoord[1] - FromCoord[1])]
@@ -235,8 +290,8 @@ class King(Piece):
             return True
 
         # Castling - AND has higher priority than OR
-        if King.CanCastle and move[1] == 0 and (move[0] == 2 or move[0] == 3):
-            if self[1] == Player.PlayerOne and FromCoord == "E0" or self[1] == Player.PlayerTwo and FromCoord == "E7":
+        if move[1] == 0 and (move[0] == 2 or move[0] == 3):
+            if self[1] == Player.PlayerOne and FromCoord == [4,0] or self[1] == Player.PlayerTwo and FromCoord == [4,7]:
                 return True
         
         print("Invalid king move")
@@ -256,8 +311,9 @@ class Queen(Piece):
         return False
 
 class Rook(Piece):
+
+    HasMoved = False
     
-    # Straight moves
     def IsValidMovePattern(self, FromCoord, ToCoord):
 
         move = [ToCoord[0] - FromCoord[0], ToCoord[1] - FromCoord[1]]
@@ -368,7 +424,7 @@ if __name__ == "__main__":
         while turn is Player.PlayerOne:
             move = input("Enter your piece, the starting square, and the ending square (i.e. King E0 F1) ").split(" ")
             if len(move) == 3 and IsValidInput(move[0], move[1], move[2]):
-                if board.Move(Player.PlayerOne, move[0][0], move[1], move[2]):
+                if board.Move(Player.PlayerOne, move[0][0:2], move[1], move[2]):
                     turn = Player.PlayerTwo
             else:
                 print("Invalid input")
@@ -377,7 +433,7 @@ if __name__ == "__main__":
 
             move = input("Enter your piece, the starting square, and the ending square (i.e. King E0 F1) ").split(" ")
             if len(move) == 3 and IsValidInput(move[0], move[1], move[2]):
-                if board.Move(Player.PlayerTwo, move[0][0], move[1], move[2]):
+                if board.Move(Player.PlayerTwo, move[0][0:2], move[1], move[2]):
                     turn = Player.PlayerOne
             else:
                 print("Invalid input")
