@@ -40,6 +40,7 @@ class Board():
         self.data[7].append(Knight(['N', Player.PlayerTwo]))
         self.data[7].append(Rook(['R', Player.PlayerTwo]))
 
+
     def Render(self, player):
         # Returns an ASCII representation of the board.
         # Prints board as other player views it (current player, not current viewer)
@@ -62,14 +63,14 @@ class Board():
 
         FromCoord = [int(ord(FromCoord[0])) - 65, int(ord(FromCoord[1])) - 48]
         ToCoord = [int(ord(ToCoord[0])) - 65, int(ord(ToCoord[1])) - 48]
-
+        MoveCoords = [abs(ToCoord[0] - FromCoord[0]), abs(ToCoord[1] - FromCoord[1])]
+        
         # Ensure player is moving a piece
         if self.data[FromCoord[1]][FromCoord[0]] == blank:
             print("No piece there")
             return False
 
         # Ensure player moves their own piece
-        print(Mover)
         if self.data[FromCoord[1]][FromCoord[0]][1] != Mover:
             print("Please do not cheat - you are not allowed to move your opponent's piece")
             return False
@@ -85,24 +86,38 @@ class Board():
             print("Cannot capture your own piece")
             return False
 
-        # Compile list of squares traveled on - don't do King or Knight
-        Path = None
-        if PieceName is 'R':
-            t = True
-
-        # Move piece is move is valid
-        if self.data[FromCoord[1]][FromCoord[0]].IsValidMove(Path, FromCoord, ToCoord):
-            self.data[ToCoord[1]][ToCoord[0]] = board.data[FromCoord[1]][FromCoord[0]]
-            self.data[FromCoord[1]][FromCoord[0]] = blank
-            self.Render(Player.PlayerOne if Mover == Player.PlayerTwo else Player.PlayerOne)
-            return True
-        else:
+        if not self.data[FromCoord[1]][FromCoord[0]].IsValidMovePattern(FromCoord, ToCoord):
             print("Invalid move")
             return False
+            
+        # Compile list of squares traveled on - don't do King or Knight
+        if PieceName is 'R':
 
-class Piece(list, Board):
+            # One of these is always 0 because the move pattern was already checked
+            # -1 to skip counting new square
+            print(MoveCoords[0] + MoveCoords[1] - 1)
+            for i in range(MoveCoords[0] + MoveCoords[1] - 1):
 
-    def IsValidMove(self, Path, FromCoord, ToCoord):
+                # Vertical move
+                if ToCoord[0] - FromCoord[0] == 0:
+                    j = (i + 1) if ToCoord[1] - FromCoord[1] > 0 else (-1 - i)
+                    if self.data[FromCoord[1] + j][FromCoord[0]][0] is not ' ':
+                        print("Your rook cannot run over pieces")
+                        return False
+                else:
+                    j = (i + 1) if ToCoord[0] - FromCoord[0] > 0 else (-1 - i)
+                    if self.data[FromCoord[1]][FromCoord[0] + j][0] is not ' ':
+                        print("Your rook cannot run over pieces")
+                        return False
+        
+        self.data[ToCoord[1]][ToCoord[0]] = board.data[FromCoord[1]][FromCoord[0]]
+        self.data[FromCoord[1]][FromCoord[0]] = blank
+        self.Render(Mover)
+        return True
+
+class Piece(list):
+
+    def IsValidMovePattern(self, FromCoord, ToCoord):
         print(self)
         print("Validation not done")
         return False
@@ -112,7 +127,7 @@ class King(Piece):
     CastleLegal = True  # Set to False when king or both rooks move
     CanCastle = False   # Set to True if CastleLegal and no pieces between king and rook
     
-    def IsValidMove(self, Path, FromCoord, ToCoord):
+    def IsValidMovePattern(self, FromCoord, ToCoord):
 
         move = [abs(ToCoord[0] - FromCoord[0]), abs(ToCoord[1] - FromCoord[1])]
 
@@ -125,12 +140,12 @@ class King(Piece):
             if self[1] == Player.PlayerOne and FromCoord == "E0" or self[1] == Player.PlayerTwo and FromCoord == "E7":
                 return True
         
-        print("Invalid King move")
+        print("Invalid king move")
         return False
 
 class Queen(Piece):
 
-    def IsValidMove(self, Path, FromCoord, ToCoord):
+    def IsValidMovePattern(self, FromCoord, ToCoord):
 
         move = [abs(ToCoord[0] - FromCoord[0]), abs(ToCoord[1] - FromCoord[1])]
 
@@ -138,25 +153,25 @@ class Queen(Piece):
         if move[0] == move[1] or move[0] == 0 or move[1] == 0:
             return True
 
-        print("Invalid Queen move")
+        print("Invalid queen move")
         return False
 
 class Rook(Piece):
+    
+    # Straight moves
+    def IsValidMovePattern(self, FromCoord, ToCoord):
 
-    def IsValidMove(self, Path, FromCoord, ToCoord):
-        
-        move = [abs(ToCoord[0] - FromCoord[0]), abs(ToCoord[1] - FromCoord[1])]
+        move = [ToCoord[0] - FromCoord[0], ToCoord[1] - FromCoord[1]]
 
-        # Straight moves
         if move[0] == 0 or move[1] == 0:
             return True
 
-        print("Invalid Rook move")
+        print("Invalid rook move")
         return False
 
 class Knight(Piece):
 
-    def IsValidMove(self, Path, FromCoord, ToCoord):
+    def IsValidMovePattern(self, FromCoord, ToCoord):
 
         move = [abs(ToCoord[0] - FromCoord[0]), abs(ToCoord[1] - FromCoord[1])]
 
@@ -164,12 +179,12 @@ class Knight(Piece):
         if move[0] == 1 and move[1] == 2 or move[0] == 2 and move[1] == 1:
             return True
 
-        print("Invalid Knight move")
+        print("Invalid knight move")
         return False
 
 class Bishop(Piece):
     
-    def IsValidMove(self, Path, FromCoord, ToCoord):
+    def IsValidMovePattern(self, FromCoord, ToCoord):
 
         move = [abs(ToCoord[0] - FromCoord[0]), abs(ToCoord[1] - FromCoord[1])]
 
@@ -177,7 +192,7 @@ class Bishop(Piece):
         if move[0] == move[1]:
             return True
 
-        print("Invalid Bishop move")
+        print("Invalid bishop move")
         return False
 
 class Pawn(Piece):
@@ -186,7 +201,7 @@ class Pawn(Piece):
     # Pawn must be on square 3 for PlayerOne or square 4 for PlayerTwo
     Capture = False 
     
-    def IsValidMove(self, Path, FromCoord, ToCoord):
+    def IsValidMovePattern(self, FromCoord, ToCoord):
 
         move = [ToCoord[0] - FromCoord[0], ToCoord[1] - FromCoord[1]]
         
@@ -213,21 +228,23 @@ class Pawn(Piece):
 
         # Player.PlayerOne move
         if self[1] == Player.PlayerOne and move[0] == 0 and move[1] == 1:
-            print("Valid Move")
             return True
 
         # Player.PlayerTwo move
         if self[1] == Player.PlayerTwo and move[0] == 0 and move[1] == -1:
             return True
 
-        print("Invalid Pawn move")
+        print("Invalid pawn move")
         return False
 
 def IsValidInput(PieceName, FromCoord, ToCoord):
 
+    if len(FromCoord) != len(ToCoord) != 2:
+        print("Invalid input")
+        return False
+
     if PieceName not in Pieces:
         print("Invalid piece")
-        print(Pieces)
         return False
 
     if FromCoord == ToCoord:
@@ -245,10 +262,9 @@ if __name__ == "__main__":
 
     board = Board()
     board.Render(Player.PlayerTwo)
+    turn = Player.PlayerOne
     
     while True:
-        
-        turn = Player.PlayerOne
         
         while turn is Player.PlayerOne:
             move = input("Enter your piece, the starting square, and the ending square (i.e. King E0 F1) ").split(" ")
@@ -259,6 +275,7 @@ if __name__ == "__main__":
                 print("Invalid input")
 
         while turn is Player.PlayerTwo:
+
             move = input("Enter your piece, the starting square, and the ending square (i.e. King E0 F1) ").split(" ")
             if len(move) == 3 and IsValidInput(move[0], move[1], move[2]):
                 if board.Move(Player.PlayerTwo, move[0][0], move[1], move[2]):
