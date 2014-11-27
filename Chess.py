@@ -54,19 +54,15 @@ class Board():
         self.data[0].append(Knight(['N', Player.PlayerOne]))
         self.data[0].append(Rook(['R', Player.PlayerOne]))
 
-##        for i in range(8):
-##            self.data[1].append(Pawn(['P', Player.PlayerOne]))
-##
-##        for i in range(4):
-##            for j in range(8):
-##                self.data[i+2].append(Piece(blank))
-##
-##        for i in range(8):
-##            self.data[6].append(Pawn(['p', Player.PlayerTwo]))
+        for i in range(8):
+            self.data[1].append(Pawn(['P', Player.PlayerOne]))
 
-        for i in range(6):
+        for i in range(4):
             for j in range(8):
-                self.data[i+1].append(Piece(blank))
+                self.data[i+2].append(Piece(blank))
+
+        for i in range(8):
+            self.data[6].append(Pawn(['p', Player.PlayerTwo]))
 
         self.data[7].append(Rook(['r', Player.PlayerTwo]))
         self.data[7].append(Knight(['n', Player.PlayerTwo]))
