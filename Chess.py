@@ -29,16 +29,16 @@ class Board():
                 self.data[i+2].append(Piece(blank))
 
         for i in range(8):
-            self.data[6].append(Pawn(['P', Player.PlayerTwo]))
+            self.data[6].append(Pawn(['p', Player.PlayerTwo]))
 
-        self.data[7].append(Rook(['R', Player.PlayerTwo]))
-        self.data[7].append(Knight(['N', Player.PlayerTwo]))
-        self.data[7].append(Bishop(['B', Player.PlayerTwo]))
-        self.data[7].append(Queen(['Q', Player.PlayerTwo]))
-        self.data[7].append(King(['K', Player.PlayerTwo]))
-        self.data[7].append(Bishop(['B', Player.PlayerTwo]))
-        self.data[7].append(Knight(['N', Player.PlayerTwo]))
-        self.data[7].append(Rook(['R', Player.PlayerTwo]))
+        self.data[7].append(Rook(['r', Player.PlayerTwo]))
+        self.data[7].append(Knight(['n', Player.PlayerTwo]))
+        self.data[7].append(Bishop(['b', Player.PlayerTwo]))
+        self.data[7].append(Queen(['q', Player.PlayerTwo]))
+        self.data[7].append(King(['k', Player.PlayerTwo]))
+        self.data[7].append(Bishop(['b', Player.PlayerTwo]))
+        self.data[7].append(Knight(['n', Player.PlayerTwo]))
+        self.data[7].append(Rook(['r', Player.PlayerTwo]))
 
 
     def Render(self, player):
@@ -103,6 +103,8 @@ class Board():
                     if self.data[FromCoord[1] + j][FromCoord[0]][0] is not ' ':
                         print("Your rook cannot run over pieces")
                         return False
+
+                # Horizontal move
                 else:
                     j = (i + 1) if ToCoord[0] - FromCoord[0] > 0 else (-1 - i)
                     if self.data[FromCoord[1]][FromCoord[0] + j][0] is not ' ':
@@ -123,9 +125,7 @@ class Board():
 
         if PieceName is 'Q':
 
-            # One of these is always 0 because the move pattern was already checked
-            # -1 to skip counting new square
-
+            # Same as rook and bishop methods
             if MoveCoords[0] == 0 or MoveCoords[1] == 0:
                 for i in range(MoveCoords[0] + MoveCoords[1] - 1):
                     
@@ -140,6 +140,8 @@ class Board():
                         if self.data[FromCoord[1]][FromCoord[0] + j][0] is not ' ':
                             print("Your queen cannot run over pieces")
                             return False
+
+            # Diagonal move
             else:
                 for i in range(abs(MoveCoords[0]) - 1):
 
@@ -147,8 +149,37 @@ class Board():
                     k = (i + 1) if ToCoord[0] - FromCoord[0] > 0 else (-1 - i)
                     
                     if self.data[FromCoord[1] + j][FromCoord[0] + k][0] is not ' ':
-                        print("Your quuen cannot run over pieces")
+                        print("Your queen cannot run over pieces")
                         return False
+
+        if PieceName is 'P':
+
+            # Normal move
+            if MoveCoords[0] == 0:
+
+                i = 1 if ToCoord[1] - FromCoord[1] > 0 else -1
+                print(ToCoord[1], ToCoord[0])
+                print(ToCoord[1]-i, ToCoord[0])
+                print(self.data[ToCoord[1]-i][ToCoord[0]][0])
+                print(self.data[ToCoord[1]][ToCoord[0]][0])
+
+                # First move
+                if MoveCoords[1] == 2:
+                    if self.data[ToCoord[1]][ToCoord[0]][0] != ' ' or self.data[ToCoord[1]-i][ToCoord[0]][0] != ' ':
+                        print("Your pawn cannot run into pieces")
+                        return False
+
+                # Normal move
+                else:
+                    if self.data[ToCoord[1]][ToCoord[0]][0] != ' ':
+                        print("Your pawn cannot run into pieces")
+                        return False
+
+            #Capture
+            else:
+                if self.data[ToCoord[1]][ToCoord[0]][0] == ' ':
+                    print("Your pawn cannot move diagonally")
+                    return False 
     
         self.data[ToCoord[1]][ToCoord[0]] = board.data[FromCoord[1]][FromCoord[0]]
         self.data[FromCoord[1]][FromCoord[0]] = blank
