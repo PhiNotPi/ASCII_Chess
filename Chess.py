@@ -5,6 +5,37 @@ Pieces = ['King', 'Queen', 'Rook', 'Knight', 'Bishop', 'Pawn']
 
 class Board():
 
+    def deepcopy(self):
+        
+        b = Board()
+
+        for i in range(8):
+            for j in range(8):
+                if self.data[i][j][0] == 'R':
+                    b.data[i][j] = Rook(['R', Player.PlayerOne])
+                if self.data[i][j][0] == 'N':
+                    b.data[i][j] = Knight(['N', Player.PlayerOne])
+                if self.data[i][j][0] == 'B':
+                    b.data[i][j] = Bishop(['B', Player.PlayerOne])
+                if self.data[i][j][0] == 'Q':
+                    b.data[i][j] = Queen(['Q', Player.PlayerOne])
+                if self.data[i][j][0] == 'K':
+                    b.data[i][j] = King(['K', Player.PlayerOne])
+
+                    
+                if self.data[i][j][0] == 'r':
+                    b.data[i][j] = Rook(['r', Player.PlayerTwo])
+                if self.data[i][j][0] == 'n':
+                    b.data[i][j] = Knight(['n', Player.PlayerTwo])
+                if self.data[i][j][0] == 'b':
+                    b.data[i][j] = Bishop(['b', Player.PlayerTwo])
+                if self.data[i][j][0] == 'q':
+                    b.data[i][j] = Queen(['q', Player.PlayerTwo])
+                if self.data[i][j][0] == 'k':
+                    b.data[i][j] = King(['k', Player.PlayerTwo])
+                
+        return b
+
     # Constructor
     def __init__(self, blank = [' ', Player.Undefined]):
         self.data = [[]]
@@ -158,10 +189,6 @@ class Board():
             if MoveCoords[0] == 0:
 
                 i = 1 if ToCoord[1] - FromCoord[1] > 0 else -1
-                print(ToCoord[1], ToCoord[0])
-                print(ToCoord[1]-i, ToCoord[0])
-                print(self.data[ToCoord[1]-i][ToCoord[0]][0])
-                print(self.data[ToCoord[1]][ToCoord[0]][0])
 
                 # First move
                 if MoveCoords[1] == 2:
@@ -176,6 +203,7 @@ class Board():
                         return False
 
             #Capture
+
             else:
                 if self.data[ToCoord[1]][ToCoord[0]][0] == ' ':
                     print("Your pawn cannot move diagonally")
@@ -183,7 +211,7 @@ class Board():
     
         self.data[ToCoord[1]][ToCoord[0]] = board.data[FromCoord[1]][FromCoord[0]]
         self.data[FromCoord[1]][FromCoord[0]] = blank
-        self.Render(Mover)
+        #self.Render(Mover)
         return True
 
 class Piece(list):
