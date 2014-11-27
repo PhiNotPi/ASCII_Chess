@@ -90,7 +90,7 @@ class Board():
             print("Invalid move")
             return False
             
-        # Compile list of squares traveled on - don't do King or Knight
+        # Compile list of squares traveled on - don't do Knight
         if PieceName is 'R':
 
             # One of these is always 0 because the move pattern was already checked
@@ -108,12 +108,10 @@ class Board():
                     if self.data[FromCoord[1]][FromCoord[0] + j][0] is not ' ':
                         print("Your rook cannot run over pieces")
                         return False
-                        
+
         if PieceName is 'B':
 
-            # One of these is always 0 because the move pattern was already checked
             # -1 to skip counting new square
-            print(abs(MoveCoords[0]) - 1)
             for i in range(abs(MoveCoords[0]) - 1):
 
                 j = (i + 1) if ToCoord[1] - FromCoord[1] > 0 else (-1 - i)
@@ -122,7 +120,36 @@ class Board():
                 if self.data[FromCoord[1] + j][FromCoord[0] + k][0] is not ' ':
                     print("Your bishop cannot run over pieces")
                     return False
-        
+
+        if PieceName is 'Q':
+
+            # One of these is always 0 because the move pattern was already checked
+            # -1 to skip counting new square
+
+            if MoveCoords[0] == 0 or MoveCoords[1] == 0:
+                for i in range(MoveCoords[0] + MoveCoords[1] - 1):
+                    
+                    # Vertical move
+                    if ToCoord[0] - FromCoord[0] == 0:
+                        j = (i + 1) if ToCoord[1] - FromCoord[1] > 0 else (-1 - i)
+                        if self.data[FromCoord[1] + j][FromCoord[0]][0] is not ' ':
+                            print("Your queen cannot run over pieces")
+                            return False
+                    else:
+                        j = (i + 1) if ToCoord[0] - FromCoord[0] > 0 else (-1 - i)
+                        if self.data[FromCoord[1]][FromCoord[0] + j][0] is not ' ':
+                            print("Your queen cannot run over pieces")
+                            return False
+            else:
+                for i in range(abs(MoveCoords[0]) - 1):
+
+                    j = (i + 1) if ToCoord[1] - FromCoord[1] > 0 else (-1 - i)
+                    k = (i + 1) if ToCoord[0] - FromCoord[0] > 0 else (-1 - i)
+                    
+                    if self.data[FromCoord[1] + j][FromCoord[0] + k][0] is not ' ':
+                        print("Your quuen cannot run over pieces")
+                        return False
+    
         self.data[ToCoord[1]][ToCoord[0]] = board.data[FromCoord[1]][FromCoord[0]]
         self.data[FromCoord[1]][FromCoord[0]] = blank
         self.Render(Mover)
