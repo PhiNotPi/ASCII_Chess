@@ -77,7 +77,7 @@ class Board():
 
         # Ensure player is moving specified piece
         if PieceName == 'K': PieceName = 'N'
-        if self.data[FromCoord[1]][FromCoord[0]][0] != PieceName:
+        if self.data[FromCoord[1]][FromCoord[0]][0].upper() != PieceName:
             print("Attempt to move wrong piece")
             return False
 
