@@ -95,7 +95,6 @@ class Board():
 
             # One of these is always 0 because the move pattern was already checked
             # -1 to skip counting new square
-            print(MoveCoords[0] + MoveCoords[1] - 1)
             for i in range(MoveCoords[0] + MoveCoords[1] - 1):
 
                 # Vertical move
